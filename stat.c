@@ -4,16 +4,29 @@
 #include <sys/stat.h>
 #include <time.h>
 int main() {
+  umask(0000);
   //Creates a file (or lets you read it if it already exists)
-  int fd = open("genericfile", O_RDWR | O_CREAT, 0644);
+  int fd = open("testfile", O_RDWR | O_CREAT, 0644);
   if (fd == -1) {
-    int fd = open("genericfile",  O_RDWR, 0644);
+    int fd = open("testfile",  O_RDWR, 0644);
   }
   //Creates the struct stat you get information from and gets the information
   struct stat * stbuf = (struct stat *) malloc(sizeof(struct stat));
-  int st = stat("genericfile",  stbuf);
+  stat("testfile",  stbuf);
   //Prints out the file size
-  printf("File size: %d\n" , stbuf->st_size);
+  long gottensize = stbuf->st_size;
+  if (gottensize < 1024) {
+    printf("File size: %lld B\n" , gottensize);
+  }
+  else if (gottensize < 1024 * 1024) {
+    printf("File size: %lld KB\n" , gottensize / 1024);
+  }
+  else if (gottensize < 1024 * 1024 * 1024) {
+    printf("File size: %lld MB\n" , gottensize / (1024*1024));
+  }
+  else {
+    printf("File size: %lld GB\n" , gottensize / (1024 * 1024 * 1024));
+  }
   //Prints out the permissions
   char fullmode[11] = "";
   int m = stbuf->st_mode;
@@ -81,6 +94,6 @@ int main() {
   //Prints out the time
   char * ct = ctime(&stbuf->st_atime);
   printf("Time of last access: %s\n", ct);
-  close(fd);
+  //close(fd);
   return 0;
 }
